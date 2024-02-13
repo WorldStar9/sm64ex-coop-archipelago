@@ -1,6 +1,7 @@
 #include <PR/ultratypes.h>
 #include <string.h>
 
+#include "../Archipelago.h"
 #include "area.h"
 #include "actors/common1.h"
 #include "audio/external.h"
@@ -1118,8 +1119,8 @@ u32 interact_warp_door(struct MarioState *m, UNUSED u32 interactType, struct Obj
 
     if (m->action == ACT_WALKING || m->action == ACT_DECELERATING) {
         if (warpDoorId == 1 && !(saveFlags & SAVE_FLAG_UNLOCKED_UPSTAIRS_DOOR)) {
-            if (!(saveFlags & SAVE_FLAG_HAVE_KEY_2)) {
-                if (display_door_dialog(m, (saveFlags & SAVE_FLAG_HAVE_KEY_1) ? gBehaviorValues.dialogs.KeyDoor1HaveDialog : gBehaviorValues.dialogs.KeyDoor1DontHaveDialog)) {
+             if (!SM64AP_HaveKey2()) {
+                if (display_door_dialog(m, SM64AP_HaveKey1() ? gBehaviorValues.dialogs.KeyDoor1HaveDialog : gBehaviorValues.dialogs.KeyDoor1DontHaveDialog)) {
                     sDisplayingDoorText = TRUE;
                     sCanInteractDoor = FALSE;
                 }
@@ -1130,8 +1131,8 @@ u32 interact_warp_door(struct MarioState *m, UNUSED u32 interactType, struct Obj
         }
 
         if (warpDoorId == 2 && !(saveFlags & SAVE_FLAG_UNLOCKED_BASEMENT_DOOR)) {
-            if (!(saveFlags & SAVE_FLAG_HAVE_KEY_1)) {
-                if (display_door_dialog(m, (saveFlags & SAVE_FLAG_HAVE_KEY_2) ? gBehaviorValues.dialogs.KeyDoor2HaveDialog : gBehaviorValues.dialogs.KeyDoor2DontHaveDialog)) {
+            if (!SM64AP_HaveKey1()) {
+                if (display_door_dialog(m, SM64AP_HaveKey2() ? gBehaviorValues.dialogs.KeyDoor2HaveDialog : gBehaviorValues.dialogs.KeyDoor2DontHaveDialog)) {
                     sDisplayingDoorText = TRUE;
                     sCanInteractDoor = FALSE;
                 }
