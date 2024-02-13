@@ -41,10 +41,10 @@ const char* get_version_local(void) {
 
 const char* get_game_name(void) {
 #ifdef DEVELOPMENT
-    return "sm64ex-coop-dev";
+    return "sm64ex-coop-archipelago";
 #elif !defined(VERSION_US)
-    return "sm64ex-coop-intl";
+    return "sm64ex-coop-archipelago";
 #else
-    return "sm64ex-coop";
+    return "sm64ex-coop-archipelago";
 #endif
 }
