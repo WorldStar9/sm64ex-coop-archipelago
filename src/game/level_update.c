@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <time.h>
 
+#include "Archipelago.h"
 #include "sm64.h"
 #include "seq_ids.h"
 #include "dialog_ids.h"
@@ -1103,7 +1104,8 @@ void update_hud_values(void) {
         }
 #endif
 
-        gHudDisplay.stars = gMarioState->numStars;
+        gHudDisplay.stars = SM64AP_GetStars();
+        SM64AP_PrintNext();
         gHudDisplay.lives = gMarioState->numLives;
         gHudDisplay.keys = gMarioState->numKeys;
 

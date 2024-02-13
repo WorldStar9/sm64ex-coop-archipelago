@@ -514,6 +514,7 @@ BUILD_DIR := $(BUILD_DIR_BASE)/$(VERSION)_pc
 
 ifeq ($(WINDOWS_BUILD),1)
 	EXE := $(BUILD_DIR)/$(TARGET_STRING).exe
+  WINNETLIB := -lws2_32
 else # Linux builds/binary namer
 	ifeq ($(TARGET_RPI),1)
 		EXE := $(BUILD_DIR)/$(TARGET_STRING).arm
@@ -696,7 +697,7 @@ ifeq ($(WINDOWS_AUTO_BUILDER),1)
   CC      := cc
   CXX     := g++
 else ifeq ($(COMPILER),gcc)
-  CC      := $(CROSS)gcc
+  CC      := $(CROSS)gcc -fdiagnostics-color -w
   CXX     := $(CROSS)g++
   ifeq ($(OSX_BUILD),0)
 	EXTRA_CFLAGS += -Wno-unused-result -Wno-format-truncation
@@ -777,7 +778,7 @@ else
 endif
 
 
-INCLUDE_DIRS := include $(BUILD_DIR) $(BUILD_DIR)/include src .
+INCLUDE_DIRS := include lib/IXWebSocket $(BUILD_DIR) $(BUILD_DIR)/include src .
 ifeq ($(TARGET_N64),1)
   INCLUDE_DIRS += include/libc
 else
@@ -786,7 +787,7 @@ endif
 
 # Connfigure backend flags
 
-SDLCONFIG := $(CROSS)sdl2-config
+SDLCONFIG := $(CROSS)sdl2-config --prefix=/mingw64
 
 BACKEND_CFLAGS := -DRAPI_$(RENDER_API)=1 -DWAPI_$(WINDOW_API)=1 -DAAPI_$(AUDIO_API)=1
 # can have multiple controller APIs
@@ -832,7 +833,7 @@ endif
 # SDL can be used by different systems, so we consolidate all of that shit into this
 
 ifeq ($(SDL2_USED),1)
-  SDLCONFIG := $(CROSS)sdl2-config
+  SDLCONFIG := $(CROSS)sdl2-config --prefix=/mingw64
   BACKEND_CFLAGS += -DHAVE_SDL2=1
 else ifeq ($(SDL1_USED),1)
   SDLCONFIG := $(CROSS)sdl-config
@@ -996,6 +997,7 @@ ifeq ($(COOPNET),1)
       COOPNET_LIBS += ./lib/coopnet/mac_intel/libcoopnet.dylib
       COOPNET_LIBS += ./lib/coopnet/mac_intel/libjuice.1.2.2.dylib
     endif
+    LDFLAGS += -lstdc++
   else ifeq ($(TARGET_RPI),1)
     ifneq (,$(findstring aarch64,$(machine)))
       LDFLAGS += -Llib/coopnet/linux -l:libcoopnet-arm64.a -l:libjuice.a
@@ -1249,6 +1251,7 @@ endif
 
 clean:
 	$(RM) -r $(BUILD_DIR_BASE)
+	$(RM) -r lib/IXWebSocket/build
 
 cleantools:
 	$(MAKE) -s -C $(TOOLS_DIR) clean
@@ -1532,18 +1535,18 @@ $(GLOBAL_ASM_DEP).$(NON_MATCHING):
 # Compile C++ code
 $(BUILD_DIR)/%.o: %.cpp
 	$(call print,Compiling:,$<,$@)
-	$(V)$(CXX) $(PROF_FLAGS) -fsyntax-only $(EXTRA_CPP_FLAGS) $(EXTRA_CPP_INCLUDES) $(CFLAGS) -MMD -MP -MT $@ -MF $(BUILD_DIR)/$*.d $<
+	$(V)$(CXX) $(PROF_FLAGS) -fsyntax-only $(EXTRA_CPP_FLAGS) $(EXTRA_CPP_INCLUDES) $(CFLAGS) -fdiagnostics-color -w -MMD -MP -MT $@ -MF $(BUILD_DIR)/$*.d $<
 	$(V)$(CXX) $(PROF_FLAGS) -c $(EXTRA_CPP_FLAGS) $(EXTRA_CPP_INCLUDES) $(CFLAGS) -o $@ $<
 
 # Compile C code
 $(BUILD_DIR)/%.o: %.c
 	$(call print,Compiling:,$<,$@)
-	$(V)$(CC_CHECK) $(PROF_FLAGS) $(CC_CHECK_CFLAGS) -MMD -MP -MT $@ -MF $(BUILD_DIR)/$*.d $<
-	$(V)$(CC) $(PROF_FLAGS) -c $(CFLAGS) -o $@ $<
+	$(V)$(CC_CHECK) $(PROF_FLAGS) $(CC_CHECK_CFLAGS) -fdiagnostics-color -w -MMD -MP -MT $@ -MF $(BUILD_DIR)/$*.d $<
+	$(V)$(CC) $(PROF_FLAGS) -c $(CFLAGS) -fdiagnostics-color -w -o $@ $<
 $(BUILD_DIR)/%.o: $(BUILD_DIR)/%.c
 	$(call print,Compiling:,$<,$@)
-	$(V)$(CC_CHECK) $(PROF_FLAGS) $(CC_CHECK_CFLAGS) -MMD -MP -MT $@ -MF $(BUILD_DIR)/$*.d $<
-	$(V)$(CC) $(PROF_FLAGS) -c $(CFLAGS) -o $@ $<
+	$(V)$(CC_CHECK) $(PROF_FLAGS) $(CC_CHECK_CFLAGS) -fdiagnostics-color -w -MMD -MP -MT $@ -MF $(BUILD_DIR)/$*.d $<
+	$(V)$(CC) $(PROF_FLAGS) -c $(CFLAGS) -fdiagnostics-color -w -o $@ $<
 
 # Alternate compiler flags needed for matching
 ifeq ($(COMPILER),ido)
@@ -1620,6 +1623,9 @@ $(BUILD_DIR)/%.o: %.s
 	$(call print,Assembling:,$<,$@)
 	$(V)$(AS) $(ASFLAGS) -MD $(BUILD_DIR)/$*.d -o $@ $<
 
+  lib/IXWebSocket/build/libixwebsocket.a:
+	cd lib/IXWebSocket && mkdir -p build && cd build && cmake .. && $(MAKE)
+
 ifeq ($(TARGET_N64),1)
   # Assemble RSP assembly code
   $(BUILD_DIR)/rsp/%.bin $(BUILD_DIR)/rsp/%_data.bin: rsp/%.s
@@ -1651,9 +1657,9 @@ ifeq ($(TARGET_N64),1)
   $(BUILD_DIR)/$(TARGET).objdump: $(ELF)
 	$(OBJDUMP) -D $< > $@
 else
-  $(EXE): $(O_FILES) $(MIO0_FILES:.mio0=.o) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(BUILD_DIR)/$(RPC_LIBS) $(BUILD_DIR)/$(DISCORD_SDK_LIBS) $(BUILD_DIR)/$(BASS_LIBS) $(BUILD_DIR)/$(COOPNET_LIBS) $(BUILD_DIR)/$(LANG_DIR) $(BUILD_DIR)/$(MOD_DIR)
+  $(EXE): $(O_FILES) $(MIO0_FILES:.mio0=.o) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(BUILD_DIR)/$(RPC_LIBS) $(BUILD_DIR)/$(DISCORD_SDK_LIBS) $(BUILD_DIR)/$(BASS_LIBS) $(BUILD_DIR)/$(COOPNET_LIBS) $(BUILD_DIR)/$(LANG_DIR) $(BUILD_DIR)/$(MOD_DIR) lib/IXWebSocket/build/libixwebsocket.a
 	@$(PRINT) "$(GREEN)Linking executable: $(BLUE)$@ $(NO_COL)\n"
-	$(V)$(LD) $(PROF_FLAGS) -L $(BUILD_DIR) -o $@ $(O_FILES) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(LDFLAGS)
+	$(V)$(LD) $(PROF_FLAGS) -L $(BUILD_DIR) -o $@ $(O_FILES) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(LDFLAGS) -ljsoncpp lib/IXWebSocket/build/libixwebsocket.a -lz $(WINNETLIB)
 endif
 
 .PHONY: all clean distclean default diff test load libultra res

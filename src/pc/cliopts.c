@@ -1,4 +1,6 @@
 #include "cliopts.h"
+
+#include "../Archipelago.h"
 #include "configfile.h"
 #include "pc_main.h"
 #include "platform.h"
@@ -47,6 +49,7 @@ bool parse_cli_opts(int argc, char* argv[]) {
     // Initialize options with false values.
     memset(&gCLIOpts, 0, sizeof(gCLIOpts));
 
+    int idx_ip = 0, idx_name = 0, idx_passwd = 0;
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--skip-intro") == 0) // Skip Peach Intro
             gCLIOpts.SkipIntro = 1;
@@ -81,6 +84,10 @@ bool parse_cli_opts(int argc, char* argv[]) {
 
         else if (strcmp(argv[i], "--savepath") == 0 && (i + 1) < argc)
             arg_string("--savepath", argv[++i], gCLIOpts.SavePath, SYS_MAX_PATH);
+        
+        else if (strcmp(argv[i], "--sm64ap_ip") == 0 && (i + 1) < argc) idx_ip = ++i;
+        else if (strcmp(argv[i], "--sm64ap_name") == 0 && (i + 1) < argc) idx_name = ++i;
+        else if (strcmp(argv[i], "--sm64ap_passwd") == 0 && (i + 1) < argc) idx_passwd = ++i;
 
         else if (strcmp(argv[i], "--playername") == 0 && (i + 1) < argc)
             arg_string("--playername", argv[++i], gCLIOpts.PlayerName, MAX_PLAYER_STRING);
@@ -93,4 +100,10 @@ bool parse_cli_opts(int argc, char* argv[]) {
     }
 
     return true;
+    if (idx_ip == 0 || idx_name == 0) {
+        printf("SM64AP: You need to at least specify Name and IP. Exiting.\n");
+        fflush(stdout);
+        game_exit();
+    }
+    SM64AP_Init(argv[idx_ip], argv[idx_name], idx_passwd == 0 ? "" : argv[idx_passwd]);
 }
