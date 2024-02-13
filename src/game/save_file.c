@@ -559,14 +559,14 @@ void save_file_collect_star_or_key(s16 coinScore, s16 starIndex, u8 fromNetwork)
             if (!(save_file_get_flags() & (SAVE_FLAG_HAVE_KEY_1 | SAVE_FLAG_UNLOCKED_BASEMENT_DOOR))) {
                 save_file_set_flags(SAVE_FLAG_HAVE_KEY_1);
             }
-            SM64AP_SendItem(SM64APITEM_ID_KEY1 - SM64AP_ID_OFFSET);
+            SM64AP_SendItem(SM64AP_ITEMID_KEY1 - SM64AP_ID_OFFSET);
             break;
 
         case LEVEL_BOWSER_2:
             if (!(save_file_get_flags() & (SAVE_FLAG_HAVE_KEY_2 | SAVE_FLAG_UNLOCKED_UPSTAIRS_DOOR))) {
                 save_file_set_flags(SAVE_FLAG_HAVE_KEY_2);
             }
-            SM64AP_SendItem(SM64APITEM_ID_KEY2 - SM64AP_ID_OFFSET);
+            SM64AP_SendItem(SM64AP_ITEMID_KEY2 - SM64AP_ID_OFFSET);
             break;
 
         case LEVEL_BOWSER_3:
