@@ -1,17 +1,17 @@
 #include "Archipelago.h"
 
-#include "ixwebsocket/IXNetSystem.h"
-#include "ixwebsocket/IXWebSocket.h"
-#include "ixwebsocket/IXUserAgent.h"
+#include "lib/APCpp/IXWebSocket/ixwebsocket/IXNetSystem.h"
+#include "lib/APCpp/IXWebSocket/ixwebsocket/IXWebSocket.h"
+#include "lib/APCpp/IXWebSocket/ixwebsocket/IXUserAgent.h"
 
 extern "C" {
     #include "game/print.h"
 }
 
-#include <json/json.h>
-#include <json/reader.h>
-#include <json/value.h>
-#include <json/writer.h>
+#include <lib/APCpp/jsoncpp/include/json/json.h>
+#include <lib/APCpp/jsoncpp/include/json/reader.h>
+#include <lib/APCpp/jsoncpp/include/json/value.h>
+#include <lib/APCpp/jsoncpp/include/json/writer.h>
 #include <deque>
 #include <string>
 #include <chrono>
