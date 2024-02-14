@@ -1623,8 +1623,8 @@ $(BUILD_DIR)/%.o: %.s
 	$(call print,Assembling:,$<,$@)
 	$(V)$(AS) $(ASFLAGS) -MD $(BUILD_DIR)/$*.d -o $@ $<
 
-  lib/IXWebSocket/build/libixwebsocket.a:
-	cd lib/IXWebSocket && mkdir -p build && cd build && cmake .. && $(MAKE)
+lib/APCpp/build/IXWebSocket/libixwebsocket.a:
+	cd lib/APCpp/build/IXWebSocket && mkdir -p build && cd build && cmake .. && $(MAKE)
 
 ifeq ($(TARGET_N64),1)
   # Assemble RSP assembly code
@@ -1657,9 +1657,9 @@ ifeq ($(TARGET_N64),1)
   $(BUILD_DIR)/$(TARGET).objdump: $(ELF)
 	$(OBJDUMP) -D $< > $@
 else
-  $(EXE): $(O_FILES) $(MIO0_FILES:.mio0=.o) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(BUILD_DIR)/$(RPC_LIBS) $(BUILD_DIR)/$(DISCORD_SDK_LIBS) $(BUILD_DIR)/$(BASS_LIBS) $(BUILD_DIR)/$(COOPNET_LIBS) $(BUILD_DIR)/$(LANG_DIR) $(BUILD_DIR)/$(MOD_DIR) lib/IXWebSocket/build/libixwebsocket.a
+  $(EXE): $(O_FILES) $(MIO0_FILES:.mio0=.o) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(BUILD_DIR)/$(RPC_LIBS) $(BUILD_DIR)/$(DISCORD_SDK_LIBS) $(BUILD_DIR)/$(BASS_LIBS) $(BUILD_DIR)/$(COOPNET_LIBS) $(BUILD_DIR)/$(LANG_DIR) $(BUILD_DIR)/$(MOD_DIR) lib/APCpp/build/IXWebSocket/libixwebsocket.a
 	@$(PRINT) "$(GREEN)Linking executable: $(BLUE)$@ $(NO_COL)\n"
-	$(V)$(LD) $(PROF_FLAGS) -L $(BUILD_DIR) -o $@ $(O_FILES) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(LDFLAGS) -ljsoncpp lib/IXWebSocket/build/libixwebsocket.a -lz $(WINNETLIB)
+	$(V)$(LD) $(PROF_FLAGS) -L $(BUILD_DIR) -o $@ $(O_FILES) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(LDFLAGS) -ljsoncpp lib/APCpp/build/IXWebSocket/libixwebsocket.a -lz $(WINNETLIB)
 endif
 
 .PHONY: all clean distclean default diff test load libultra res
